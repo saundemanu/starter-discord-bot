@@ -9,7 +9,7 @@ const GUILD_ID = process.env.GUILD_ID
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { SlashCommandBuilder, Routes } = require('discord.js');
+const { SlashCommandBuilder, Client, GatewayIntentBits, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 
 const axios = require('axios')
