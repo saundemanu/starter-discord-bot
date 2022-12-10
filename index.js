@@ -7,12 +7,6 @@ const PUBLIC_KEY = process.env.PUBLIC_KEY || 'not set'
 const GUILD_ID = process.env.GUILD_ID 
 
 
-const fs = require('node:fs');
-const path = require('node:path');
-const { Client: DiscordClient } = require('discord.js');
-const { SlashCommandBuilder, Collection, GatewayIntentBits, Routes } = require('discord.js');
-const { REST } = require('@discordjs/rest');
-
 const axios = require('axios')
 const express = require('express');
 const { InteractionType, InteractionResponseType, verifyKeyMiddleware } = require('discord-interactions');
@@ -21,8 +15,6 @@ const { InteractionType, InteractionResponseType, verifyKeyMiddleware } = requir
 const app = express();
 // app.use(bodyParser.json());
 
-const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds] });
-client.commands = {};
 const discord_api = axios.create({
   baseURL: 'https://discord.com/api/',
   timeout: 3000,
@@ -39,18 +31,6 @@ const discord_api = axios.create({
 
 app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
   const interaction = req.body;
-  const command = client.commands.get(interaction.commandName);
-
-	if (!command) return;
-
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-	}
-
-
 
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
     console.log(interaction.data.name)
@@ -63,20 +43,47 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
       });
     }
 
-    // if(interaction.data.name == 'dm'){
-    //   // https://discord.com/developers/docs/resources/user#create-dm
-    //   let c = (await discord_api.post(`/users/@me/channels`,{
-    //     recipient_id: interaction.member.user.id
-    //   })).data
-    //   try{
-    //     // https://discord.com/developers/docs/resources/channel#create-message
-    //     let res = await discord_api.post(`/channels/${c.id}/messages`,{
-    //       content:'Yo! I got your slash command. I am not able to respond to DMs just slash commands.',
-    //     })
-    //     console.log(res.data)
-    //   }catch(e){
-    //     console.log(e)
-    //   }
+    if(interaction.data.name == 'dm'){
+      // https://discord.com/developers/docs/resources/user#create-dm
+      let c = (await discord_api.post(`/users/@me/channels`,{
+        recipient_id: interaction.member.user.id
+      })).data
+      try{
+        // https://discord.com/developers/docs/resources/channel#create-message
+        let res = await discord_api.post(`/channels/${c.id}/messages`,{
+          content:'Yo! I got your slash command. I am not able to respond to DMs just slash commands.',
+        })
+        console.log(res.data)
+      }catch(e){
+        console.log(e)
+      }
+
+      if(interaction.data.name = "pingvoicechannel"){
+        let c = (await discord_api.post(`users/@me/channels`, {
+          recipient_id: interaction.member.user.id
+        })).data
+        try{
+          let res = await discord_api.post(`/channels/${c.id}/messages`, message => {
+            const voiceChannel = message.member.voice.channel;
+  
+        if (!voiceChannel) {
+          // The message sender is not in a voice channel, so we can't alert anyone
+          message.reply('You must be in a voice channel to use this command.');
+          return;
+        }
+    
+        // Alert all users in the voice channel by pinging them
+        voiceChannel.members.forEach(member => {
+          message.channel.send(member.toString());
+        });
+    
+        // Confirm that the alert has been sent
+        message.author.send('Alert sent to all users in the voice channel.');
+          })
+        } catch(e){
+            console.log(e)
+        }
+      }
 
       return res.send({
         // https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
@@ -86,36 +93,45 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
         }
       });
     }
-  
+  }
 
 });
 
 
 
-app.get('/register_commands', async (req, res) =>{
+app.get('/register_commands', async (req,res) =>{
+  let slash_commands = [
+    {
+      "name": "yo",
+      "description": "replies with Yo!",
+      "options": []
+    },
+    {
+      "name": "dm",
+      "description": "sends user a DM",
+      "options": []
+    },
+    {
+      "name":"pingvoicechannel",
+      "description":"ping all users in the voice channel",
+      "options": []
 
-const commands = [];
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const filePath = path.join(commandsPath, file);
-	const command = require(filePath);
-	commands.push(command.data.toJSON());
-}
-try{
-let discord_response = await discord_api.put(
-  `/applications/${APPLICATION_ID}/guilds/${GUILD_ID}/commands`,
-  commands
-  )    
-  console.log(discord_response.data)
-  return res.send('commands have been registered')
-}catch(e){
-  console.error(e.code)
-  console.error(e.response?.data)
-  return res.send(`${e.code} error from discord`)
-}
-
+    }
+  ]
+  try
+  {
+    // api docs - https://discord.com/developers/docs/interactions/application-commands#create-global-application-command
+    let discord_response = await discord_api.put(
+      `/applications/${APPLICATION_ID}/guilds/${GUILD_ID}/commands`,
+      slash_commands
+    )
+    console.log(discord_response.data)
+    return res.send('commands have been registered')
+  }catch(e){
+    console.error(e.code)
+    console.error(e.response?.data)
+    return res.send(`${e.code} error from discord`)
+  }
 })
 
 
