@@ -36,30 +36,36 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
     console.log(interaction.data.name)
 
-    if(interaction.data.name = "pingvoicechannel"){
-       
-      // Get the voice channel that the message sender is in
-      const voiceChannel = interaction.member.voice.channel;
-  
-      // Check if the message sender is in a voice channel
-      if (!voiceChannel) {
+    if (interaction.data.name === 'pingvoicechannel') {
+      // Check if the interaction.member object has a voice property
+      if (interaction.member.voice) {
+        // Check if the voice property has a channel property
+        if (interaction.member.voice.channel) {
+          // Get the voice channel that the message sender is in
+          const voiceChannel = interaction.member.voice.channel;
+    
+          // Get all the members of the voice channel
+          const members = voiceChannel.members;
+    
+          // Send a message to each member of the voice channel
+          members.forEach(async member => {
+            try {
+              // https://discord.com/developers/docs/resources/channel#create-message
+              await discord_api.post(`/channels/${member.user.id}/messages`, {
+                content: `You were pinged by ${interaction.member.user.username} in the ${voiceChannel.name} voice channel!`,
+              });
+            } catch (e) {
+              console.log(e);
+            }
+          });
+        } else {
+          // Return an error message if the voice property does not have a channel property
+          return interaction.respond('You need to be in a voice channel to use this command!');
+        }
+      } else {
+        // Return an error message if the interaction.member object does not have a voice property
         return interaction.respond('You need to be in a voice channel to use this command!');
       }
-  
-      // Get all the members of the voice channel
-      const members = voiceChannel.members;
-  
-      // Send a message to each member of the voice channel
-      members.forEach(async member => {
-        try {
-          // https://discord.com/developers/docs/resources/channel#create-message
-          await discord_api.post(`/channels/${member.user.id}/messages`, {
-            content: `You were pinged by ${interaction.member.user.username} in the ${voiceChannel.name} voice channel!`,
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      });
     }
 
     if(interaction.data.name == 'yo'){
