@@ -78,8 +78,8 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
 
 
 
-app.get('/register_commands', async (req,res) =>{
-  
+app.get('/register_commands', async (req, res) =>{
+
 const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -89,12 +89,18 @@ for (const file of commandFiles) {
 	const command = require(filePath);
 	commands.push(command.data.toJSON());
 }
-
-const rest = new REST({ version: '10' }).setToken(token);
-
-rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-	.then(() => console.log('Successfully registered application commands.'))
-	.catch(console.error);
+try{
+let discord_response = await discord_api.put(
+  `/applications/${APPLICATION_ID}/guilds/${GUILD_ID}/commands`,
+  commands
+  )    
+  console.log(discord_response.data)
+  return res.send('commands have been registered')
+}catch(e){
+  console.error(e.code)
+  console.error(e.response?.data)
+  return res.send(`${e.code} error from discord`)
+}
 
 })
 
