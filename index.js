@@ -25,7 +25,9 @@ const discord_api = axios.create({
   }
 });
 const Discord = require("discord.js");
-const client = new Discord.Client();
+const client = new Discord.Client({
+  intents: Discord.Intents.SEND_MESSAGES | Discord.Intents.READ_MESSAGE_HISTORY,
+});
 
 client.on("message", (message) => {
   if (message.content === "yo") {
