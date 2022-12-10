@@ -1,13 +1,10 @@
-import {Client} from ('discord.js');
+
 // const { clientId, guildId, token, publicKey } = require('./config.json');
 require('dotenv').config()
 const APPLICATION_ID = process.env.APPLICATION_ID 
 const TOKEN = process.env.TOKEN 
 const PUBLIC_KEY = process.env.PUBLIC_KEY || 'not set'
 const GUILD_ID = process.env.GUILD_ID 
-
-const Discord = require("discord.js");
-const client = new Discord.Client();
 
 const axios = require('axios')
 const express = require('express');
@@ -103,6 +100,11 @@ app.get('/register_commands', async (req,res) =>{
     {
       "name": "dm",
       "description": "sends user a DM",
+      "options": []
+    },
+    {
+      "name":"pingvc",
+      "description":"pings ppl", 
       "options": []
     }
   ]
