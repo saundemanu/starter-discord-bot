@@ -22,7 +22,7 @@ const app = express();
 // app.use(bodyParser.json());
 
 const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds] });
-
+client.commands = {};
 const discord_api = axios.create({
   baseURL: 'https://discord.com/api/',
   timeout: 3000,
