@@ -59,30 +59,31 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
       }
 
       if(interaction.data.name = "pingvoicechannel"){
-        let c = (await discord_api.post(`users/@me/channels`, {
-          recipient_id: interaction.member.user.id
-        })).data
-        try{
-          let res = await discord_api.post(`/channels/${c.id}/messages`, message => {
-            const voiceChannel = message.member.voice.channel;
-  
-        if (!voiceChannel) {
-          // The message sender is not in a voice channel, so we can't alert anyone
-          message.reply('You must be in a voice channel to use this command.');
-          return;
-        }
-    
-        // Alert all users in the voice channel by pinging them
-        voiceChannel.members.forEach(member => {
-          message.channel.send(member.toString());
-        });
-    
-        // Confirm that the alert has been sent
-        message.author.send('Alert sent to all users in the voice channel.');
-          })
-        } catch(e){
-            console.log(e)
-        }
+       
+          // Get the voice channel that the message sender is in
+          const voiceChannel = interaction.member.voice.channel;
+      
+          // Check if the message sender is in a voice channel
+          if (!voiceChannel) {
+            return interaction.respond('You need to be in a voice channel to use this command!');
+          }
+      
+          // Get all the members of the voice channel
+          const members = voiceChannel.members;
+      
+          // Send a message to each member of the voice channel
+          members.forEach(async member => {
+            try {
+              // https://discord.com/developers/docs/resources/channel#create-message
+              await discord_api.post(`/channels/${member.user.id}/messages`, {
+                content: `You were pinged by ${interaction.member.user.username} in the ${voiceChannel.name} voice channel!`,
+              });
+            } catch (e) {
+              console.log(e);
+            }
+          });
+
+         
       }
 
       return res.send({
