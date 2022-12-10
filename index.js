@@ -58,6 +58,33 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
         console.log(e)
       }
 
+      if(interaction.data.name = "pingvoicechannel"){
+        let c = (await discord_api.post(`users/@me/channels`, {
+          recipient_id: interaction.member.user.id
+        })).data
+        try{
+          let res = await discord_api.post(`/channels/${c.id}/messages`, message => {
+            const voiceChannel = message.member.voice.channel;
+  
+        if (!voiceChannel) {
+          // The message sender is not in a voice channel, so we can't alert anyone
+          message.reply('You must be in a voice channel to use this command.');
+          return;
+        }
+    
+        // Alert all users in the voice channel by pinging them
+        voiceChannel.members.forEach(member => {
+          message.channel.send(member.toString());
+        });
+    
+        // Confirm that the alert has been sent
+        message.author.send('Alert sent to all users in the voice channel.');
+          })
+        } catch(e){
+            console.log(e)
+        }
+      }
+
       return res.send({
         // https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -83,6 +110,12 @@ app.get('/register_commands', async (req,res) =>{
       "name": "dm",
       "description": "sends user a DM",
       "options": []
+    },
+    {
+      "name":"pingvoicechannel",
+      "description":"",
+      "options": []
+
     }
   ]
   try
