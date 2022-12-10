@@ -47,7 +47,7 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
 		console.error(error);
 		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 	}
-});
+
 
 
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
