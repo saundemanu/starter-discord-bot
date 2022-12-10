@@ -60,6 +60,14 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
         },
       });
     }
+    if(interaction.data.name == 'pingvc'){
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `Yo ${interaction.member.user}!`,
+        },
+      });
+    }
 
     if(interaction.data.name == 'dm'){
       // https://discord.com/developers/docs/resources/user#create-dm
