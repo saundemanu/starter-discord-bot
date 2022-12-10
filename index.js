@@ -61,11 +61,11 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
           });
         } else {
           // Return an error message if the voice property does not have a channel property
-          return message.reply('You need to be in a voice channel to use this command!');
+          return res.send('You need to be in a voice channel to use this command!');
         }
       } else {
         // Return an error message if the interaction.member object does not have a voice property
-        return message.reply('You need to be in a voice channel to use this command!');
+        return res.send('You need to be in a voice channel to use this command!');
       }
     }
 
