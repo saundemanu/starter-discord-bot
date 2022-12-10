@@ -10,6 +10,7 @@ const GUILD_ID = process.env.GUILD_ID
 const axios = require('axios')
 const express = require('express');
 const { InteractionType, InteractionResponseType, verifyKeyMiddleware } = require('discord-interactions');
+const { messageLink } = require('discord.js')
 
 
 const app = express();
@@ -60,11 +61,11 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
           });
         } else {
           // Return an error message if the voice property does not have a channel property
-          return interaction.respond('You need to be in a voice channel to use this command!');
+          return message.reply('You need to be in a voice channel to use this command!');
         }
       } else {
         // Return an error message if the interaction.member object does not have a voice property
-        return interaction.respond('You need to be in a voice channel to use this command!');
+        return message.reply('You need to be in a voice channel to use this command!');
       }
     }
 
