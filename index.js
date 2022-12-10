@@ -72,6 +72,8 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
           // Return an error message if the interaction.member object does not have a voice property
           return res.send('You need to be in a voice channel to use this command!');
         }
+      }
+    });
 
 
 
@@ -87,8 +89,7 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
         }
       });
     }
-
-});
+);
 
 
 
