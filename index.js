@@ -9,7 +9,8 @@ const GUILD_ID = process.env.GUILD_ID
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { SlashCommandBuilder, Client, GatewayIntentBits, Routes } = require('discord.js');
+const { Client: DiscordClient } = require('discord.js');
+const { SlashCommandBuilder, Collection, GatewayIntentBits, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 
 const axios = require('axios')
@@ -20,7 +21,7 @@ const { InteractionType, InteractionResponseType, verifyKeyMiddleware } = requir
 const app = express();
 // app.use(bodyParser.json());
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new DiscordClient({ intents: [GatewayIntentBits.Guilds] });
 
 const discord_api = axios.create({
   baseURL: 'https://discord.com/api/',
