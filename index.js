@@ -24,29 +24,6 @@ const discord_api = axios.create({
 	"Authorization": `Bot ${TOKEN}`
   }
 });
-const Discord = require("discord.js");
-const client = new Discord.Client();
-
-client.on("message", (message) => {
-  if (message.content === "yo") {
-    message.channel.send("Yo back at ya!");
-  } else if (message.content === "dm") {
-    message.author.send("Hello in your DM!");
-  } else if (message.content === "pingvc") {
-    // First, we need to get the voice channel that the user who sent the message is in
-    const voiceChannel = message.member.voice.channel;
-
-    // Then, we need to get all the members in the voice channel
-    const members = voiceChannel.members;
-
-    // We'll use the `map()` method to create an array of mention strings for each member
-    const mentions = members.map((member) => member.toString());
-
-    // Now we can send a message to the text channel, mentioning all the members in the voice channel
-    message.channel.send(`Pinging all users in the voice channel: ${mentions.join(", ")}`);
-  }
-});
-
 
 app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
   const interaction = req.body;
