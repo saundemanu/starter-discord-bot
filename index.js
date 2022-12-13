@@ -62,12 +62,19 @@ app.post('/interactions', verifyKeyMiddleware(PUBLIC_KEY), async (req, res) => {
       });
     }
     if(interaction.data.name == 'pingvc'){
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `Yo ${interaction.member.user}!`,
-        },
-      });
+        // Get the list of members in the voice channel
+        const members = interaction.voiceChannel.getMembers();
+        const textChannel =  interaction.channel; 
+        // Loop through the members and send them a message
+        members.forEach(member => {
+          member.user.send('ping');
+        });
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `${interaction.member.user.username} I pinged vc!`,
+          },
+        });
     }
 
     if(interaction.data.name == 'dm'){
